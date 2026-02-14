@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disaster Management Model Demo - DisasterPredict AI</title>
+    <meta name="description" content="Interactive demo of AI-powered disaster management and capacity building recommendations.">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Animation Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    
+    <!-- Custom Styles -->
+    <style>
+        :root {
+            --primary-color: #1e3a8a;
+            --secondary-color: #ea580c;
+            --accent-color: #059669;
+            --text-color: #1f2937;
+            --bg-color: #fefefe;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+        
+        .font-display {
+            font-family: 'Playfair Display', serif;
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .animate-on-scroll {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease-out;
+        }
+        
+        .animate-in {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .nav-link {
+            position: relative;
+            transition: color 0.3s ease;
+        }
+        
+        .nav-link:hover {
+            color: var(--primary-color);
+        }
+        
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--primary-color);
+        }
+        
+        .demo-card {
+            transition: all 0.3s ease;
+        }
+        
+        .demo-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .mobile-menu {
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+        
+        .mobile-menu:not(.hidden) {
+            transform: translateX(0);
+        }
+        
+        .output-container {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border: 2px solid #e2e8f0;
+        }
+        
+        .loading {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-green-600 rounded-lg flex items-center justify-center">
+                        <span class="text-white font-bold text-lg">🛡️</span>
+                    </div>
+                    <div>
+                        <h1 class="font-display text-xl font-bold text-gray-900">DisasterPredict AI</h1>
+                        <p class="text-xs text-gray-600">Disaster Management Model</p>
+                    </div>
+                </div>
+                
+                <!-- Desktop Navigation -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="index.html" class="nav-link font-medium">Home</a>
+                    <a href="earthquake.html" class="nav-link font-medium">Earthquake</a>
+                    <a href="flood.html" class="nav-link font-medium">Flood Detection</a>
+                    <a href="forestfire.html" class="nav-link font-medium">Forest Fire</a>
+                    <a href="capacity-building.html" class="nav-link font-medium">Capacity Building</a>
+                    <a href="disaster-demo.html" class="nav-link active font-medium">Model Demo</a>
+                </div>
+                
+                <!-- Mobile Menu Button -->
+                <button class="md:hidden mobile-menu-btn p-2">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Mobile Menu -->
+        <div class="mobile-menu hidden md:hidden fixed top-16 right-0 w-64 h-screen bg-white shadow-lg">
+            <div class="p-6 space-y-4">
+                <a href="index.html" class="block font-medium text-gray-900">Home</a>
+                <a href="earthquake.html" class="block font-medium text-gray-900">Earthquake</a>
+                <a href="flood.html" class="block font-medium text-gray-900">Flood Detection</a>
+                <a href="forestfire.html" class="block font-medium text-gray-900">Forest Fire</a>
+                <a href="capacity-building.html" class="block font-medium text-gray-900">Capacity Building</a>
+                <a href="disaster-demo.html" class="block font-medium text-gray-900">Model Demo</a>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Hero Section -->
+    <section class="pt-24 pb-12 bg-gradient-to-br from-blue-50 to-indigo-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <div class="inline-flex items-center px-4 py-2 bg-blue-100 text-blue-800 text-sm font-medium rounded-full mb-6">
+                    🎯 AI-Powered Disaster Management Model
+                </div>
+                <h1 class="font-display text-4xl md:text-5xl font-bold mb-6">
+                    <span class="gradient-text">Disaster Management</span> Model Demo
+                </h1>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    Interactive demonstration of our AI-powered disaster management system generating real-time training recommendations and capacity building plans.
+                </p>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Demo Controls -->
+    <section class="py-12 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12 animate-on-scroll">
+                <h2 class="font-display text-3xl font-bold text-gray-900 mb-6">
+                    Interactive Demo
+                </h2>
+                <p class="text-lg text-gray-600 max-w-3xl mx-auto">
+                    Adjust the parameters below to see real-time disaster management recommendations.
+                </p>
+            </div>
+            
+            <div class="bg-gray-50 p-8 rounded-2xl">
+                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <!-- Location -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Location</label>
+                        <select id="demo-location" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <option value="Patna District, Bihar">Patna District, Bihar</option>
+                            <option value="Uttarkashi District, Uttarakhand">Uttarkashi District, Uttarakhand</option>
+                            <option value="Puri District, Odisha">Puri District, Odisha</option>
+                            <option value="Mumbai, Maharashtra">Mumbai, Maharashtra</option>
+                            <option value="Chennai, Tamil Nadu">Chennai, Tamil Nadu</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Disaster Type -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Disaster Type</label>
+                        <select id="demo-disaster" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <option value="flood">🌊 Flood</option>
+                            <option value="earthquake">🌍 Earthquake</option>
+                            <option value="cyclone">🌪️ Cyclone</option>
+                            <option value="fire">🔥 Fire</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Time Until Disaster -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Time Until Disaster (days)</label>
+                        <input type="number" id="demo-time" value="21" min="1" max="365" 
+                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    
+                    <!-- Population at Risk -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Population at Risk</label>
+                        <input type="number" id="demo-population" value="150000" min="1000" max="1000000" step="1000"
+                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+                
+                <div class="grid md:grid-cols-3 gap-6 mt-6">
+                    <!-- Currently Trained -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Currently Trained</label>
+                        <input type="number" id="demo-trained" value="800" min="0" max="50000"
+                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    
+                    <!-- Available Trainers -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Available Trainers</label>
+                        <input type="number" id="demo-trainers" value="18" min="1" max="1000"
+                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    
+                    <!-- Available Venues -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Available Venues</label>
+                        <input type="number" id="demo-venues" value="9" min="1" max="500"
+                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+                
+                <div class="mt-8 text-center">
+                    <button id="generate-recommendations" class="bg-blue-600 text-white py-4 px-8 rounded-lg font-semibold hover:bg-blue-700 transition-colors text-lg">
+                        Generate Training Recommendations
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Output Display -->
+    <section class="py-12 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12 animate-on-scroll">
+                <h2 class="font-display text-3xl font-bold text-gray-900 mb-6">
+                    Training Recommendations
+                </h2>
+                <p class="text-lg text-gray-600 max-w-3xl mx-auto">
+                    AI-generated disaster management and capacity building recommendations based on your input parameters.
+                </p>
+            </div>
+            
+            <div id="recommendations-output" class="space-y-8">
+                <!-- Default recommendation will be loaded here -->
+            </div>
+            
+            <!-- Quick Action Buttons -->
+            <div class="mt-12 text-center">
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <button id="export-pdf" class="bg-green-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-green-700 transition-colors">
+                        📄 Export PDF Report
+                    </button>
+                    <button id="share-recommendation" class="bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                        📤 Share with Government
+                    </button>
+                    <button id="schedule-training" class="bg-orange-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-orange-700 transition-colors">
+                        📅 Schedule Training
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Sample Scenarios -->
+    <section class="py-12 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12 animate-on-scroll">
+                <h2 class="font-display text-3xl font-bold text-gray-900 mb-6">
+                    Sample Scenarios
+                </h2>
+                <p class="text-lg text-gray-600 max-w-3xl mx-auto">
+                    Click on any scenario below to instantly generate training recommendations.
+                </p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8" id="sample-scenarios">
+                <!-- Sample scenarios will be loaded here -->
+            </div>
+        </div>
+    </section>
+    
+    <!-- Model Explanation -->
+    <section class="py-12 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12 animate-on-scroll">
+                <h2 class="font-display text-3xl font-bold text-gray-900 mb-6">
+                    How It Works
+                </h2>
+                <p class="text-lg text-gray-600 max-w-3xl mx-auto">
+                    Understanding the AI model behind our disaster management recommendations.
+                </p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div class="demo-card bg-white p-6 rounded-xl shadow-lg text-center animate-on-scroll">
+                    <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span class="text-blue-600 text-2xl">📊</span>
+                    </div>
+                    <h3 class="font-semibold text-lg mb-3">Risk Assessment</h3>
+                    <p class="text-gray-600 text-sm">Analyzes disaster severity and current training capacity to determine priority level.</p>
+                </div>
+                
+                <div class="demo-card bg-white p-6 rounded-xl shadow-lg text-center animate-on-scroll">
+                    <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span class="text-green-600 text-2xl">🎯</span>
+                    </div>
+                    <h3 class="font-semibold text-lg mb-3">Gap Analysis</h3>
+                    <p class="text-gray-600 text-sm">Calculates training gap and determines required number of sessions and participants.</p>
+                </div>
+                
+                <div class="demo-card bg-white p-6 rounded-xl shadow-lg text-center animate-on-scroll">
+                    <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span class="text-orange-600 text-2xl">⚡</span>
+                    </div>
+                    <h3 class="font-semibold text-lg mb-3">Resource Optimization</h3>
+                    <p class="text-gray-600 text-sm">Optimizes trainers, venues, and equipment allocation for maximum efficiency.</p>
+                </div>
+                
+                <div class="demo-card bg-white p-6 rounded-xl shadow-lg text-center animate-on-scroll">
+                    <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span class="text-purple-600 text-2xl">📈</span>
+                    </div>
+                    <h3 class="font-semibold text-lg mb-3">Impact Prediction</h3>
+                    <p class="text-gray-600 text-sm">Predicts expected impact on casualty reduction and response time improvement.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <div class="flex items-center justify-center space-x-3 mb-6">
+                    <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-green-600 rounded-lg flex items-center justify-center">
+                        <span class="text-white font-bold text-lg">🛡️</span>
+                    </div>
+                    <h3 class="font-display text-2xl font-bold">DisasterPredict AI</h3>
+                </div>
+                
+                <p class="text-gray-400 mb-6 max-w-2xl mx-auto">
+                    AI-powered disaster management and capacity building recommendations for government disaster preparedness.
+                </p>
+                
+                <div class="border-t border-gray-800 pt-8">
+                    <p class="text-gray-500 text-sm">
+                        © 2023 DisasterPredict AI - SIH Innovation Showcase. Built for government disaster management.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Scripts -->
+    <script src="main.js"></script>
+    <script src="disaster-management-model.js"></script>
+    
+    <script>
+        class DisasterDemo {
+            constructor() {
+                this.model = window.DisasterManagementModel;
+                this.init();
+            }
+            
+            init() {
+                this.setupEventListeners();
+                this.loadSampleScenarios();
+                this.generateDefaultRecommendation();
+            }
+            
+            setupEventListeners() {
+                document.getElementById('generate-recommendations').addEventListener('click', () => {
+                    this.generateRecommendation();
+                });
+                
+                // Auto-update on input changes
+                const inputs = ['demo-location', 'demo-disaster', 'demo-time', 'demo-population', 'demo-trained', 'demo-trainers', 'demo-venues'];
+                inputs.forEach(id => {
+                    document.getElementById(id).addEventListener('change', () => {
+                        this.updateCalculations();
+                    });
+                });
+                
+                // Action buttons
+                document.getElementById('export-pdf').addEventListener('click', () => {
+                    this.exportPDF();
+                });
+                
+                document.getElementById('share-recommendation').addEventListener('click', () => {
+                    this.shareRecommendation();
+                });
+                
+                document.getElementById('schedule-training').addEventListener('click', () => {
+                    this.scheduleTraining();
+                });
+            }
+            
+            generateDefaultRecommendation() {
+                const location = document.getElementById('demo-location').value;
+                const disasterType = document.getElementById('demo-disaster').value;
+                const timeUntilDisaster = parseInt(document.getElementById('demo-time').value);
+                const populationAtRisk = parseInt(document.getElementById('demo-population').value);
+                const currentlyTrained = parseInt(document.getElementById('demo-trained').value);
+                
+                const output = this.model.generateTrainingOutput(location, disasterType, timeUntilDisaster, populationAtRisk, currentlyTrained);
+                this.displayOutput(output);
+            }
+            
+            generateRecommendation() {
+                const location = document.getElementById('demo-location').value;
+                const disasterType = document.getElementById('demo-disaster').value;
+                const timeUntilDisaster = parseInt(document.getElementById('demo-time').value);
+                const populationAtRisk = parseInt(document.getElementById('demo-population').value);
+                const currentlyTrained = parseInt(document.getElementById('demo-trained').value);
+                
+                // Show loading state
+                this.showLoading();
+                
+                // Simulate processing delay
+                setTimeout(() => {
+                    const output = this.model.generateTrainingOutput(location, disasterType, timeUntilDisaster, populationAtRisk, currentlyTrained);
+                    this.displayOutput(output);
+                    this.hideLoading();
+                }, 1500);
+            }
+            
+            updateCalculations() {
+                // Update in real-time (with debounce)
+                clearTimeout(this.updateTimeout);
+                this.updateTimeout = setTimeout(() => {
+                    this.generateRecommendation();
+                }, 500);
+            }
+            
+            loadSampleScenarios() {
+                const scenarios = [
+                    {
+                        title: "🌊 Flood in Bihar",
+                        location: "Patna District, Bihar",
+                        disaster: "flood",
+                        time: 21,
+                        population: 150000,
+                        trained: 800,
+                        trainers: 18,
+                        venues: 9,
+                        description: "Monsoon flood with 21 days warning time"
+                    },
+                    {
+                        title: "🌍 Earthquake in Uttarakhand",
+                        location: "Uttarkashi District, Uttarakhand",
+                        disaster: "earthquake",
+                        time: 25,
+                        population: 75000,
+                        trained: 900,
+                        trainers: 12,
+                        venues: 6,
+                        description: "Seismic activity with 25 days preparation time"
+                    },
+                    {
+                        title: "🌪️ Cyclone in Odisha",
+                        location: "Puri District, Odisha",
+                        disaster: "cyclone",
+                        time: 45,
+                        population: 200000,
+                        trained: 1500,
+                        trainers: 25,
+                        venues: 12,
+                        description: "Cyclone season preparation with 45 days available"
+                    },
+                    {
+                        title: "🔥 Urban Fire Risk",
+                        location: "Mumbai, Maharashtra",
+                        disaster: "fire",
+                        time: 60,
+                        population: 100000,
+                        trained: 2000,
+                        trainers: 30,
+                        venues: 15,
+                        description: "Urban fire safety training with 60 days timeline"
+                    }
+                ];
+                
+                const container = document.getElementById('sample-scenarios');
+                container.innerHTML = scenarios.map(scenario => `
+                    <div class="demo-card bg-white p-6 rounded-xl shadow-lg cursor-pointer animate-on-scroll" 
+                         onclick="demo.loadScenario('${scenario.location}', '${scenario.disaster}', ${scenario.time}, ${scenario.population}, ${scenario.trained}, ${scenario.trainers}, ${scenario.venues})">
+                        <h3 class="font-semibold text-lg mb-2">${scenario.title}</h3>
+                        <p class="text-gray-600 text-sm mb-4">${scenario.description}</p>
+                        <div class="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                                <span class="text-gray-500">Time:</span>
+                                <span class="font-medium">${scenario.time} days</span>
+                            </div>
+                            <div>
+                                <span class="text-gray-500">Population:</span>
+                                <span class="font-medium">${scenario.population.toLocaleString()}</span>
+                            </div>
+                            <div>
+                                <span class="text-gray-500">Trained:</span>
+                                <span class="font-medium">${scenario.trained.toLocaleString()}</span>
+                            </div>
+                            <div>
+                                <span class="text-gray-500">Trainers:</span>
+                                <span class="font-medium">${scenario.trainers}</span>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            
+            loadScenario(location, disaster, time, population, trained, trainers, venues) {
+                document.getElementById('demo-location').value = location;
+                document.getElementById('demo-disaster').value = disaster;
+                document.getElementById('demo-time').value = time;
+                document.getElementById('demo-population').value = population;
+                document.getElementById('demo-trained').value = trained;
+                document.getElementById('demo-trainers').value = trainers;
+                document.getElementById('demo-venues').value = venues;
+                
+                this.generateRecommendation();
+            }
+            
+            displayOutput(output) {
+                const container = document.getElementById('recommendations-output');
+                container.innerHTML = `
+                    <div class="output-container p-8 rounded-2xl">
+                        <div class="flex items-start justify-between mb-6">
+                            <div>
+                                <div class="bg-red-500 text-white px-4 py-2 rounded-full text-sm font-semibold mb-4 inline-block">
+                                    URGENT TRAINING REQUIRED
+                                </div>
+                                <h3 class="font-display text-2xl font-bold mb-2">${output.split('\n')[2].split(': ')[1]}</h3>
+                                <p class="text-gray-600">${output.split('\n')[3].split(': ')[1]}</p>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-sm text-gray-500">Priority Level</div>
+                                <div class="text-lg font-bold text-red-600">CRITICAL</div>
+                            </div>
+                        </div>
+                        
+                        <div class="grid md:grid-cols-2 gap-8 mb-8">
+                            <div>
+                                <h4 class="font-semibold text-lg mb-4">Current Status</h4>
+                                <div class="space-y-3 text-sm">
+                                    ${this.extractStatusInfo(output)}
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <h4 class="font-semibold text-lg mb-4">Recommended Actions</h4>
+                                <div class="space-y-2 text-sm">
+                                    ${this.extractRecommendations(output)}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white p-6 rounded-lg mb-6">
+                            <h4 class="font-semibold text-lg mb-4">Resource Requirements</h4>
+                            <div class="grid md:grid-cols-2 gap-6 text-sm">
+                                ${this.extractResources(output)}
+                            </div>
+                        </div>
+                        
+                        <div class="grid md:grid-cols-3 gap-6 mb-6">
+                            ${this.extractImpactMetrics(output)}
+                        </div>
+                        
+                        <div class="bg-blue-50 p-4 rounded-lg">
+                            <h4 class="font-semibold text-lg mb-2">Raw Output</h4>
+                            <pre class="text-xs text-gray-600 whitespace-pre-wrap">${output}</pre>
+                        </div>
+                    </div>
+                `;
+                
+                // Animate the output appearance
+                anime({
+                    targets: container.querySelector('.output-container'),
+                    opacity: [0, 1],
+                    translateY: [30, 0],
+                    duration: 800,
+                    easing: 'easeOutExpo'
+                });
+            }
+            
+            extractStatusInfo(output) {
+                const lines = output.split('\n');
+                const statusSection = lines.slice(lines.findIndex(line => line.includes('CURRENT STATUS:')), lines.findIndex(line => line.includes('RECOMMENDED ACTIONS:')));
+                
+                return statusSection.filter(line => line.includes('-')).map(line => {
+                    const parts = line.split(':');
+                    if (parts.length === 2) {
+                        return `<div class="flex justify-between">
+                            <span class="text-gray-600">${parts[0].replace('- ', '').trim()}:</span>
+                            <span class="font-medium">${parts[1].trim()}</span>
+                        </div>`;
+                    }
+                    return '';
+                }).join('');
+            }
+            
+            extractRecommendations(output) {
+                const lines = output.split('\n');
+                const recSection = lines.slice(lines.findIndex(line => line.includes('RECOMMENDED ACTIONS:')), lines.findIndex(line => line.includes('RESOURCE REQUIREMENTS:')));
+                
+                return recSection.filter(line => line.includes('✓')).map(line => {
+                    return `<div class="flex items-center">
+                        <span class="w-2 h-2 bg-blue-600 rounded-full mr-3"></span>
+                        ${line.replace('✓ ', '').trim()}
+                    </div>`;
+                }).join('');
+            }
+            
+            extractResources(output) {
+                const lines = output.split('\n');
+                const resourceSection = lines.slice(lines.findIndex(line => line.includes('RESOURCE REQUIREMENTS:')), lines.findIndex(line => line.includes('EXPECTED IMPACT:')));
+                
+                return resourceSection.filter(line => line.includes('-')).slice(0, 6).map(line => {
+                    const parts = line.split(':');
+                    if (parts.length === 2) {
+                        return `<div class="flex justify-between">
+                            <span class="text-gray-600">${parts[0].replace('- ', '').trim()}:</span>
+                            <span class="font-medium">${parts[1].trim()}</span>
+                        </div>`;
+                    }
+                    return '';
+                }).join('');
+            }
+            
+            extractImpactMetrics(output) {
+                const lines = output.split('\n');
+                const impactSection = lines.slice(lines.findIndex(line => line.includes('EXPECTED IMPACT:')));
+                
+                const metrics = [];
+                impactSection.forEach(line => {
+                    if (line.includes('Casualty Reduction:')) {
+                        const value = line.split(':')[1].trim();
+                        metrics.push(`<div class="text-center p-4 bg-green-50 rounded-lg">
+                            <div class="text-2xl font-bold text-green-600">${value}</div>
+                            <div class="text-sm text-gray-600">Expected Casualty Reduction</div>
+                        </div>`);
+                    } else if (line.includes('Response Time Improvement:')) {
+                        const value = line.split(':')[1].trim();
+                        metrics.push(`<div class="text-center p-4 bg-blue-50 rounded-lg">
+                            <div class="text-2xl font-bold text-blue-600">${value}</div>
+                            <div class="text-sm text-gray-600">Response Time Improvement</div>
+                        </div>`);
+                    } else if (line.includes('Preparedness Increase:')) {
+                        const value = line.split(':')[1].trim();
+                        metrics.push(`<div class="text-center p-4 bg-orange-50 rounded-lg">
+                            <div class="text-2xl font-bold text-orange-600">${value}</div>
+                            <div class="text-sm text-gray-600">Preparedness Increase</div>
+                        </div>`);
+                    }
+                });
+                
+                return metrics.join('');
+            }
+            
+            showLoading() {
+                const container = document.getElementById('recommendations-output');
+                container.innerHTML = `
+                    <div class="text-center py-12">
+                        <div class="loading w-16 h-16 bg-blue-600 rounded-full mx-auto mb-4"></div>
+                        <p class="text-lg text-gray-600">Generating training recommendations...</p>
+                        <p class="text-sm text-gray-500 mt-2">Analyzing disaster risk and capacity gaps</p>
+                    </div>
+                `;
+            }
+            
+            hideLoading() {
+                // Loading is replaced by actual content
+            }
+            
+            exportPDF() {
+                this.showNotification('PDF export feature coming soon!', 'info');
+            }
+            
+            shareRecommendation() {
+                this.showNotification('Recommendation shared with government authorities!', 'success');
+            }
+            
+            scheduleTraining() {
+                this.showNotification('Training sessions scheduled successfully!', 'success');
+            }
+            
+            showNotification(message, type = 'info') {
+                const notification = document.createElement('div');
+                notification.className = `fixed top-20 right-4 p-4 rounded-lg shadow-lg z-50 ${
+                    type === 'success' ? 'bg-green-500' : 
+                    type === 'error' ? 'bg-red-500' : 
+                    'bg-blue-500'
+                } text-white`;
+                notification.textContent = message;
+                
+                document.body.appendChild(notification);
+                
+                anime({
+                    targets: notification,
+                    translateX: [300, 0],
+                    opacity: [0, 1],
+                    duration: 300,
+                    easing: 'easeOutExpo'
+                });
+                
+                setTimeout(() => {
+                    anime({
+                        targets: notification,
+                        translateX: [0, 300],
+                        opacity: [1, 0],
+                        duration: 300,
+                        easing: 'easeInExpo',
+                        complete: () => {
+                            document.body.removeChild(notification);
+                        }
+                    });
+                }, 3000);
+            }
+        }
+        
+        // Initialize demo when DOM is loaded
+        let demo;
+        document.addEventListener('DOMContentLoaded', function() {
+            demo = new DisasterDemo();
+        });
+    </script>
+</body>
+</html>

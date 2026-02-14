@@ -1,0 +1,62 @@
+:root {
+  --ndma-navy: #002147;
+  --ndma-saffron: #FF9933;
+  --ndma-white: #FFFFFF;
+  --ndma-grey: #F5F5F5;
+  --ndma-orange-accent: #FF6B35;
+  --ndma-dark-grey: #E0E0E0;
+  --ndma-text-dark: #1a1a1a;
+  --ndma-text-light: #666666;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Noto Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--ndma-grey);
+  color: var(--ndma-text-dark);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Playfair Display', serif;
+  font-weight: 600;
+}
+
+button {
+  font-family: 'Inter', sans-serif;
+}
+
+/* Leaflet map container styles */
+.leaflet-container {
+  height: 100%;
+  width: 100%;
+  z-index: 1;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--ndma-grey);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--ndma-dark-grey);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #ccc;
+}

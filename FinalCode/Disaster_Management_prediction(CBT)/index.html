@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Natural Disaster Prediction System - SIH 2023</title>
+    <meta name="description" content="AI-powered natural disaster prediction system for earthquake, flood, and forest fire detection using machine learning and deep learning technologies.">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Animation Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css" rel="stylesheet">
+    
+    <!-- Custom Styles -->
+    <style>
+        :root {
+            --primary-color: #1e3a8a;
+            --secondary-color: #ea580c;
+            --accent-color: #059669;
+            --text-color: #1f2937;
+            --bg-color: #fefefe;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+        
+        .font-display {
+            font-family: 'Playfair Display', serif;
+        }
+        
+        .hero-bg {
+            background: linear-gradient(135deg, rgba(30, 58, 138, 0.1) 0%, rgba(5, 150, 105, 0.1) 100%);
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .animate-on-scroll {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease-out;
+        }
+        
+        .animate-in {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .model-card {
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        
+        .model-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        .tech-badge {
+            background: linear-gradient(135deg, rgba(30, 58, 138, 0.1) 0%, rgba(234, 88, 12, 0.1) 100%);
+            border: 1px solid rgba(30, 58, 138, 0.2);
+        }
+        
+        .particle-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+        
+        .nav-link {
+            position: relative;
+            transition: color 0.3s ease;
+        }
+        
+        .nav-link:hover {
+            color: var(--primary-color);
+        }
+        
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--primary-color);
+        }
+        
+        .stats-counter {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+        
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+        }
+        
+        .scroll-indicator {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateX(-50%) translateY(0);
+            }
+            40% {
+                transform: translateX(-50%) translateY(-10px);
+            }
+            60% {
+                transform: translateX(-50%) translateY(-5px);
+            }
+        }
+        
+        .mobile-menu {
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+        
+        .mobile-menu:not(.hidden) {
+            transform: translateX(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Particle Background -->
+    <div id="particle-background" class="particle-bg"></div>
+    
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-green-600 rounded-lg flex items-center justify-center">
+                        <span class="text-white font-bold text-lg">🛡️</span>
+                    </div>
+                    <div>
+                        <h1 class="font-display text-xl font-bold text-gray-900">DisasterPredict AI</h1>
+                        <p class="text-xs text-gray-600">SIH 2023 Finalist</p>
+                    </div>
+                </div>
+                
+                <!-- Desktop Navigation -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#home" class="nav-link active font-medium">Home</a>
+                    <a href="earthquake.html" class="nav-link font-medium">Earthquake</a>
+                    <a href="flood.html" class="nav-link font-medium">Flood Detection</a>
+                    <a href="forestfire.html" class="nav-link font-medium">Forest Fire</a>
+                    <a href="capacity-building.html" class="nav-link font-medium">Capacity Building</a>
+                    <a href="#technology" class="nav-link font-medium">Technology</a>
+                </div>
+                
+                <!-- Mobile Menu Button -->
+                <button class="md:hidden mobile-menu-btn p-2">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Mobile Menu -->
+        <div class="mobile-menu hidden md:hidden fixed top-16 right-0 w-64 h-screen bg-white shadow-lg">
+            <div class="p-6 space-y-4">
+                <a href="#home" class="block font-medium text-gray-900">Home</a>
+                <a href="earthquake.html" class="block font-medium text-gray-900">Earthquake</a>
+                <a href="flood.html" class="block font-medium text-gray-900">Flood Detection</a>
+                <a href="forestfire.html" class="block font-medium text-gray-900">Forest Fire</a>
+                <a href="capacity-building.html" class="block font-medium text-gray-900">Capacity Building</a>
+                <a href="#technology" class="block font-medium text-gray-900">Technology</a>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Hero Section -->
+    <section id="home" class="relative min-h-screen flex items-center justify-center hero-bg pt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid lg:grid-cols-2 gap-12 items-center">
+                <!-- Hero Content -->
+                <div class="text-center lg:text-left">
+                    <div class="mb-6">
+                        <span class="inline-block px-4 py-2 bg-blue-100 text-blue-800 text-sm font-medium rounded-full mb-4">
+                            🚀 SIH 2023 Innovation Showcase
+                        </span>
+                        <h1 class="hero-title font-display text-4xl md:text-6xl font-bold mb-6 leading-tight">
+                            AI-Powered <span class="gradient-text">Natural Disaster</span> Prediction System
+                        </h1>
+                        <p class="hero-subtitle text-xl text-gray-600 mb-8 leading-relaxed">
+                            Advanced machine learning algorithms providing early warnings for earthquakes, floods, and forest fires to save lives and protect communities.
+                        </p>
+                    </div>
+                    
+                    <!-- CTA Buttons -->
+                    <div class="hero-cta flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-12">
+                        <a href="#models" class="inline-flex items-center px-8 py-4 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors duration-300 shadow-lg hover:shadow-xl">
+                            Explore Models
+                            <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                            </svg>
+                        </a>
+                        <a href="#technology" class="inline-flex items-center px-8 py-4 bg-white text-blue-600 font-semibold rounded-lg border-2 border-blue-600 hover:bg-blue-50 transition-colors duration-300">
+                            View Technology
+                        </a>
+                    </div>
+                    
+                    <!-- Stats -->
+                    <div class="grid grid-cols-3 gap-8">
+                        <div class="text-center">
+                            <div class="stats-counter" data-count="96">0</div>
+                            <p class="text-sm text-gray-600 font-medium">% Accuracy</p>
+                        </div>
+                        <div class="text-center">
+                            <div class="stats-counter" data-count="3">0</div>
+                            <p class="text-sm text-gray-600 font-medium">Disaster Types</p>
+                        </div>
+                        <div class="text-center">
+                            <div class="stats-counter" data-count="24">0</div>
+                            <p class="text-sm text-gray-600 font-medium">Hour Monitoring</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Hero Image -->
+                <div class="relative">
+                    <div class="relative z-10">
+                        <img src="resources/hero-bg.jpg" alt="Natural Disaster Prediction Technology" class="w-full h-96 object-cover rounded-2xl shadow-2xl">
+                        <div class="absolute -bottom-6 -right-6 bg-white p-6 rounded-xl shadow-lg">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                                    <span class="text-green-600 text-xl">✓</span>
+                                </div>
+                                <div>
+                                    <p class="font-semibold text-gray-900">Real-time Prediction</p>
+                                    <p class="text-sm text-gray-600">Live monitoring active</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Background decoration -->
+                    <div class="absolute top-10 right-10 w-72 h-72 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
+                    <div class="absolute bottom-10 left-10 w-72 h-72 bg-green-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Scroll Indicator -->
+        <div class="scroll-indicator">
+            <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+            </svg>
+        </div>
+    </section>
+    
+    <!-- Models Overview -->
+    <section id="models" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16 animate-on-scroll">
+                <h2 class="font-display text-4xl font-bold text-gray-900 mb-6">
+                    Prediction Models
+                </h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    Our comprehensive suite of AI models provides accurate predictions across multiple natural disaster scenarios, enabling proactive disaster management and response.
+                </p>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Earthquake Model -->
+                <div class="model-card bg-white p-8 rounded-2xl shadow-lg border border-gray-100 animate-on-scroll">
+                    <div class="feature-icon mx-auto mb-6">
+                        🌍
+                    </div>
+                    <h3 class="font-display text-2xl font-bold text-center mb-4">Earthquake Prediction</h3>
+                    <p class="text-gray-600 text-center mb-6">
+                        Analyzes seismic data from the Hindu Kush region using machine learning to predict earthquake probability with 96% accuracy.
+                    </p>
+                    
+                    <div class="space-y-3 mb-8">
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-600">Accuracy</span>
+                            <span class="font-semibold text-blue-600">96%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-blue-600 h-2 rounded-full" style="width: 96%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex flex-wrap gap-2 mb-8">
+                        <span class="tech-badge px-3 py-1 text-xs font-medium rounded-full">Seismic Analysis</span>
+                        <span class="tech-badge px-3 py-1 text-xs font-medium rounded-full">ML Algorithms</span>
+                        <span class="tech-badge px-3 py-1 text-xs font-medium rounded-full">Real-time Data</span>
+                    </div>
+                    
+                    <a href="earthquake.html" class="block w-full text-center px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors duration-300">
+                        Try Earthquake Model
+                    </a>
+                </div>
+                
+                <!-- Flood Detection -->
+                <div class="model-card bg-white p-8 rounded-2xl shadow-lg border border-gray-100 animate-on-scroll">
+                    <div class="feature-icon mx-auto mb-6">
+                        🌊
+                    </div>
+                    <h3 class="font-display text-2xl font-bold text-center mb-4">Flood Detection</h3>
+                    <p class="text-gray-600 text-center mb-6">
+                        Deep learning-based image analysis using MobileNet CNN to detect flood conditions from satellite and ground imagery.
+                    </p>
+                    
+                    <div class="space-y-3 mb-8">
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-600">Precision</span>
+                            <span class="font-semibold text-blue-600">94%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-blue-600 h-2 rounded-full" style="width: 94%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex flex-wrap gap-2 mb-8">
+                        <span class="tech-badge px-3 py-1 text-xs font-medium rounded-full">Computer Vision</span>
+                        <span class="tech-badge px-3 py-1 text-xs font-medium rounded-full">MobileNet CNN</span>
+                        <span class="tech-badge px-3 py-1 text-xs font-medium rounded-full">Image Classification</span>
+                    </div>
+                    
+                    <a href="flood.html" class="block w-full text-center px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors duration-300">
+                        Try Flood Detection
+                    </a>
+                </div>
+                
+                <!-- Forest Fire Model -->
+                <div class="model-card bg-white p-8 rounded-2xl shadow-lg border border-gray-100 animate-on-scroll">
+                    <div class="feature-icon mx-auto mb-6">
+                        🔥
+                    </div>
+                    <h3 class="font-display text-2xl font-bold text-center mb-4">Forest Fire Prediction</h3>
+                    <p class="text-gray-600 text-center mb-6">
+                        Environmental parameter analysis using logistic regression to predict forest fire probability based on temperature, humidity, and oxygen levels.
+                    </p>
+                    
+                    <div class="space-y-3 mb-8">
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-600">Reliability</span>
+                            <span class="font-semibold text-blue-600">91%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-blue-600 h-2 rounded-full" style="width: 91%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex flex-wrap gap-2 mb-8">
+                        <span class="tech-badge px-3 py-1 text-xs font-medium rounded-full">Logistic Regression</span>
+                        <span class="tech-badge px-3 py-1 text-xs font-medium rounded-full">Environmental Data</span>
+                        <span class="tech-badge px-3 py-1 text-xs font-medium rounded-full">Risk Assessment</span>
+                    </div>
+                    
+                    <a href="forestfire.html" class="block w-full text-center px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors duration-300">
+                        Try Fire Prediction
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Technology Stack -->
+    <section id="technology" class="py-20 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16 animate-on-scroll">
+                <h2 class="font-display text-4xl font-bold text-gray-900 mb-6">
+                    Technology Stack
+                </h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    Built with cutting-edge technologies and frameworks to ensure scalability, accuracy, and real-time performance.
+                </p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- Frontend -->
+                <div class="bg-white p-6 rounded-xl shadow-lg animate-on-scroll">
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                        <span class="text-blue-600 text-xl">🎨</span>
+                    </div>
+                    <h3 class="font-semibold text-lg mb-3">Frontend</h3>
+                    <ul class="space-y-2 text-sm text-gray-600">
+                        <li>• HTML5 & CSS3</li>
+                        <li>• Tailwind CSS</li>
+                        <li>• JavaScript ES6+</li>
+                        <li>• Responsive Design</li>
+                    </ul>
+                </div>
+                
+                <!-- Machine Learning -->
+                <div class="bg-white p-6 rounded-xl shadow-lg animate-on-scroll">
+                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
+                        <span class="text-green-600 text-xl">🤖</span>
+                    </div>
+                    <h3 class="font-semibold text-lg mb-3">Machine Learning</h3>
+                    <ul class="space-y-2 text-sm text-gray-600">
+                        <li>• Python & Scikit-learn</li>
+                        <li>• TensorFlow & Keras</li>
+                        <li>• MobileNet CNN</li>
+                        <li>• Logistic Regression</li>
+                    </ul>
+                </div>
+                
+                <!-- Data Processing -->
+                <div class="bg-white p-6 rounded-xl shadow-lg animate-on-scroll">
+                    <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
+                        <span class="text-purple-600 text-xl">📊</span>
+                    </div>
+                    <h3 class="font-semibold text-lg mb-3">Data Processing</h3>
+                    <ul class="space-y-2 text-sm text-gray-600">
+                        <li>• Pandas & NumPy</li>
+                        <li>• ECharts.js</li>
+                        <li>• Real-time Streaming</li>
+                        <li>• Data Visualization</li>
+                    </ul>
+                </div>
+                
+                <!-- Deployment -->
+                <div class="bg-white p-6 rounded-xl shadow-lg animate-on-scroll">
+                    <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mb-4">
+                        <span class="text-orange-600 text-xl">🚀</span>
+                    </div>
+                    <h3 class="font-semibold text-lg mb-3">Deployment</h3>
+                    <ul class="space-y-2 text-sm text-gray-600">
+                        <li>• Flask Framework</li>
+                        <li>• Cloud Hosting</li>
+                        <li>• Docker Containers</li>
+                        <li>• Load Balancing</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Key Features -->
+    <section class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16 animate-on-scroll">
+                <h2 class="font-display text-4xl font-bold text-gray-900 mb-6">
+                    Key Features
+                </h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    Our system combines advanced AI algorithms with real-time data processing to deliver accurate and timely disaster predictions.
+                </p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="text-center animate-on-scroll">
+                    <div class="feature-icon mx-auto mb-6">⚡</div>
+                    <h3 class="font-semibold text-xl mb-4">Real-time Processing</h3>
+                    <p class="text-gray-600">Continuous monitoring and analysis of environmental data streams for instant threat detection.</p>
+                </div>
+                
+                <div class="text-center animate-on-scroll">
+                    <div class="feature-icon mx-auto mb-6">🎯</div>
+                    <h3 class="font-semibold text-xl mb-4">High Accuracy</h3>
+                    <p class="text-gray-600">Advanced ML models trained on extensive datasets achieving over 90% prediction accuracy.</p>
+                </div>
+                
+                <div class="text-center animate-on-scroll">
+                    <div class="feature-icon mx-auto mb-6">📱</div>
+                    <h3 class="font-semibold text-xl mb-4">User-friendly Interface</h3>
+                    <p class="text-gray-600">Intuitive web-based dashboard accessible from any device with real-time updates.</p>
+                </div>
+                
+                <div class="text-center animate-on-scroll">
+                    <div class="feature-icon mx-auto mb-6">🔔</div>
+                    <h3 class="font-semibold text-xl mb-4">Alert System</h3>
+                    <p class="text-gray-600">Multi-level alert system with customizable thresholds and notification channels.</p>
+                </div>
+                
+                <div class="text-center animate-on-scroll">
+                    <div class="feature-icon mx-auto mb-6">📈</div>
+                    <h3 class="font-semibold text-xl mb-4">Data Analytics</h3>
+                    <p class="text-gray-600">Comprehensive analytics and reporting with historical trend analysis and insights.</p>
+                </div>
+                
+                <div class="text-center animate-on-scroll">
+                    <div class="feature-icon mx-auto mb-6">🌐</div>
+                    <h3 class="font-semibold text-xl mb-4">Multi-region Support</h3>
+                    <p class="text-gray-600">Scalable architecture supporting multiple geographical regions and data sources.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Data Sources -->
+    <section class="py-20 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16 animate-on-scroll">
+                <h2 class="font-display text-4xl font-bold text-gray-900 mb-6">
+                    Data Sources & Methodology
+                </h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    Our models are trained on comprehensive datasets from authoritative sources, ensuring reliable and accurate predictions.
+                </p>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="bg-white p-6 rounded-xl shadow-lg animate-on-scroll">
+                    <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mb-4">
+                        <span class="text-red-600 text-xl">🌍</span>
+                    </div>
+                    <h3 class="font-semibold text-lg mb-3">Earthquake Data</h3>
+                    <ul class="space-y-2 text-sm text-gray-600">
+                        <li>• USGS Earthquake Database</li>
+                        <li>• 14,698 historical records</li>
+                        <li>• Hindu Kush Region focus</li>
+                        <li>• Real-time seismic networks</li>
+                    </ul>
+                </div>
+                
+                <div class="bg-white p-6 rounded-xl shadow-lg animate-on-scroll">
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                        <span class="text-blue-600 text-xl">🌊</span>
+                    </div>
+                    <h3 class="font-semibold text-lg mb-3">Flood Detection</h3>
+                    <ul class="space-y-2 text-sm text-gray-600">
+                        <li>• Satellite imagery datasets</li>
+                        <li>• Ground-based photography</li>
+                        <li>• Weather radar data</li>
+                        <li>• River level monitoring</li>
+                    </ul>
+                </div>
+                
+                <div class="bg-white p-6 rounded-xl shadow-lg animate-on-scroll">
+                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
+                        <span class="text-green-600 text-xl">🔥</span>
+                    </div>
+                    <h3 class="font-semibold text-lg mb-3">Forest Fire Data</h3>
+                    <ul class="space-y-2 text-sm text-gray-600">
+                        <li>• Environmental sensor networks</li>
+                        <li>• Weather station data</li>
+                        <li>• Historical fire incidents</li>
+                        <li>• Vegetation indices</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <div class="flex items-center justify-center space-x-3 mb-6">
+                    <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-green-600 rounded-lg flex items-center justify-center">
+                        <span class="text-white font-bold text-lg">🛡️</span>
+                    </div>
+                    <h3 class="font-display text-2xl font-bold">DisasterPredict AI</h3>
+                </div>
+                
+                <p class="text-gray-400 mb-6 max-w-2xl mx-auto">
+                    Advancing disaster preparedness through artificial intelligence and machine learning technologies.
+                </p>
+                
+                <div class="flex justify-center space-x-6 mb-8">
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-blue-400">96%</div>
+                        <div class="text-sm text-gray-400">Accuracy Rate</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-green-400">24/7</div>
+                        <div class="text-sm text-gray-400">Monitoring</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-orange-400">3</div>
+                        <div class="text-sm text-gray-400">Disaster Types</div>
+                    </div>
+                </div>
+                
+                <div class="border-t border-gray-800 pt-8">
+                    <p class="text-gray-500 text-sm">
+                        © 2023 DisasterPredict AI - SIH Innovation Showcase. Built with passion for saving lives.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Scripts -->
+    <script src="main.js"></script>
+    
+    <script>
+        // Initialize stats counter animation
+        document.addEventListener('DOMContentLoaded', function() {
+            const counters = document.querySelectorAll('.stats-counter');
+            
+            const animateCounter = (counter) => {
+                const target = parseInt(counter.getAttribute('data-count'));
+                const duration = 2000;
+                const start = performance.now();
+                
+                const updateCounter = (currentTime) => {
+                    const elapsed = currentTime - start;
+                    const progress = Math.min(elapsed / duration, 1);
+                    const current = Math.floor(progress * target);
+                    counter.textContent = current;
+                    
+                    if (progress < 1) {
+                        requestAnimationFrame(updateCounter);
+                    }
+                };
+                
+                requestAnimationFrame(updateCounter);
+            };
+            
+            // Intersection Observer for counters
+            const counterObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        animateCounter(entry.target);
+                        counterObserver.unobserve(entry.target);
+                    }
+                });
+            });
+            
+            counters.forEach(counter => counterObserver.observe(counter));
+        });
+    </script>
+</body>
+</html>

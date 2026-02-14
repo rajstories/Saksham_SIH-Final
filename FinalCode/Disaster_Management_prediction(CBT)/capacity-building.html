@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Capacity Building Dashboard - DisasterPredict AI</title>
+    <meta name="description" content="AI-powered capacity building recommendations for disaster preparedness training and resource allocation.">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Animation Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    
+    <!-- Custom Styles -->
+    <style>
+        :root {
+            --primary-color: #1e3a8a;
+            --secondary-color: #ea580c;
+            --accent-color: #059669;
+            --text-color: #1f2937;
+            --bg-color: #fefefe;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+        
+        .font-display {
+            font-family: 'Playfair Display', serif;
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .animate-on-scroll {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease-out;
+        }
+        
+        .animate-in {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .nav-link {
+            position: relative;
+            transition: color 0.3s ease;
+        }
+        
+        .nav-link:hover {
+            color: var(--primary-color);
+        }
+        
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--primary-color);
+        }
+        
+        .sidebar {
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+        
+        .sidebar.open {
+            transform: translateX(0);
+        }
+        
+        .main-content {
+            margin-left: 0;
+            transition: margin-left 0.3s ease;
+        }
+        
+        .main-content.shifted {
+            margin-left: 320px;
+        }
+        
+        .priority-card {
+            transition: all 0.3s ease;
+        }
+        
+        .priority-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .alert-critical {
+            background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+        }
+        
+        .alert-high {
+            background: linear-gradient(135deg, #ea580c 0%, #f97316 100%);
+        }
+        
+        .alert-medium {
+            background: linear-gradient(135deg, #ca8a04 0%, #eab308 100%);
+        }
+        
+        .alert-low {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+        }
+        
+        .progress-ring {
+            transition: stroke-dasharray 0.5s ease;
+        }
+        
+        .mobile-menu {
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+        
+        .mobile-menu:not(.hidden) {
+            transform: translateX(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center space-x-3">
+                    <button id="sidebar-toggle" class="p-2 rounded-lg hover:bg-gray-100 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                    <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-green-600 rounded-lg flex items-center justify-center">
+                        <span class="text-white font-bold text-lg">🛡️</span>
+                    </div>
+                    <div>
+                        <h1 class="font-display text-xl font-bold text-gray-900">DisasterPredict AI</h1>
+                        <p class="text-xs text-gray-600">Capacity Building Dashboard</p>
+                    </div>
+                </div>
+                
+                <!-- Desktop Navigation -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="index.html" class="nav-link font-medium">Home</a>
+                    <a href="earthquake.html" class="nav-link font-medium">Earthquake</a>
+                    <a href="flood.html" class="nav-link font-medium">Flood Detection</a>
+                    <a href="forestfire.html" class="nav-link font-medium">Forest Fire</a>
+                    <a href="capacity-building.html" class="nav-link active font-medium">Capacity Building</a>
+                </div>
+                
+                <!-- Mobile Menu Button -->
+                <button class="md:hidden mobile-menu-btn p-2">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Mobile Menu -->
+        <div class="mobile-menu hidden md:hidden fixed top-16 right-0 w-64 h-screen bg-white shadow-lg">
+            <div class="p-6 space-y-4">
+                <a href="index.html" class="block font-medium text-gray-900">Home</a>
+                <a href="earthquake.html" class="block font-medium text-gray-900">Earthquake</a>
+                <a href="flood.html" class="block font-medium text-gray-900">Flood Detection</a>
+                <a href="forestfire.html" class="block font-medium text-gray-900">Forest Fire</a>
+                <a href="capacity-building.html" class="block font-medium text-gray-900">Capacity Building</a>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar fixed left-0 top-16 h-full w-80 bg-white shadow-lg z-40 overflow-y-auto">
+        <div class="p-6">
+            <h2 class="font-display text-xl font-bold mb-6">Quick Actions</h2>
+            
+            <!-- Disaster Selection -->
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Select Disaster Type</label>
+                <select id="disaster-type" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    <option value="flood">🌊 Flood</option>
+                    <option value="earthquake">🌍 Earthquake</option>
+                    <option value="cyclone">🌪️ Cyclone</option>
+                    <option value="fire">🔥 Fire</option>
+                </select>
+            </div>
+            
+            <!-- Location Input -->
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Location</label>
+                <input type="text" id="location-input" placeholder="Enter district or state" 
+                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+            </div>
+            
+            <!-- Time Available -->
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Time Available (days)</label>
+                <input type="number" id="time-available" value="30" min="1" max="365"
+                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+            </div>
+            
+            <!-- Population -->
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Population at Risk</label>
+                <input type="number" id="population-risk" value="10000" min="100" max="1000000"
+                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+            </div>
+            
+            <!-- Generate Recommendations -->
+            <button id="generate-btn" class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors mb-6">
+                Generate Recommendations
+            </button>
+            
+            <!-- Quick Stats -->
+            <div class="space-y-4">
+                <h3 class="font-semibold text-lg">Current Status</h3>
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-sm text-gray-600">Total Trained</span>
+                        <span class="font-bold text-blue-600" id="current-trained">1,200</span>
+                    </div>
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-sm text-gray-600">Coverage Rate</span>
+                        <span class="font-bold text-green-600" id="coverage-rate">12%</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-600">Training Gap</span>
+                        <span class="font-bold text-red-600" id="training-gap">8,800</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div id="main-content" class="main-content pt-16 min-h-screen bg-gray-50">
+        <!-- Hero Section -->
+        <section class="py-12 bg-gradient-to-br from-blue-50 to-indigo-100">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center">
+                    <div class="inline-flex items-center px-4 py-2 bg-blue-100 text-blue-800 text-sm font-medium rounded-full mb-6">
+                        🎯 AI-Powered Training Recommendations
+                    </div>
+                    <h1 class="font-display text-4xl md:text-5xl font-bold mb-6">
+                        <span class="gradient-text">Capacity Building</span> Dashboard
+                    </h1>
+                    <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                        Intelligent training recommendations and resource allocation for disaster preparedness based on real-time predictions and gap analysis.
+                    </p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Priority Alerts -->
+        <section class="py-12">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12 animate-on-scroll">
+                    <h2 class="font-display text-3xl font-bold text-gray-900 mb-6">
+                        Priority Training Alerts
+                    </h2>
+                    <p class="text-lg text-gray-600 max-w-3xl mx-auto">
+                        Critical areas requiring immediate training intervention based on disaster predictions and current capacity gaps.
+                    </p>
+                </div>
+                
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8" id="priority-alerts">
+                    <!-- Priority cards will be dynamically generated -->
+                </div>
+            </div>
+        </section>
+        
+        <!-- Training Recommendations -->
+        <section class="py-12 bg-white">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12 animate-on-scroll">
+                    <h2 class="font-display text-3xl font-bold text-gray-900 mb-6">
+                        Training Recommendations
+                    </h2>
+                    <p class="text-lg text-gray-600 max-w-3xl mx-auto">
+                        AI-generated training schedules and resource allocation plans optimized for maximum impact.
+                    </p>
+                </div>
+                
+                <div id="training-recommendations" class="space-y-8">
+                    <!-- Training recommendations will be dynamically generated -->
+                </div>
+            </div>
+        </section>
+        
+        <!-- Analytics Dashboard -->
+        <section class="py-12 bg-gray-50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12 animate-on-scroll">
+                    <h2 class="font-display text-3xl font-bold text-gray-900 mb-6">
+                        Training Analytics
+                    </h2>
+                    <p class="text-lg text-gray-600 max-w-3xl mx-auto">
+                        Comprehensive insights into training effectiveness, coverage gaps, and resource utilization.
+                    </p>
+                </div>
+                
+                <div class="grid lg:grid-cols-2 gap-12">
+                    <!-- Coverage Analysis -->
+                    <div class="bg-white p-8 rounded-2xl shadow-lg animate-on-scroll">
+                        <h3 class="font-display text-2xl font-bold mb-6">Training Coverage Analysis</h3>
+                        <div id="coverage-chart" class="h-64"></div>
+                    </div>
+                    
+                    <!-- Resource Utilization -->
+                    <div class="bg-white p-8 rounded-2xl shadow-lg animate-on-scroll">
+                        <h3 class="font-display text-2xl font-bold mb-6">Resource Utilization</h3>
+                        <div id="resource-chart" class="h-64"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Problem Identification -->
+        <section class="py-12 bg-white">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12 animate-on-scroll">
+                    <h2 class="font-display text-3xl font-bold text-gray-900 mb-6">
+                        Training Effectiveness Issues
+                    </h2>
+                    <p class="text-lg text-gray-600 max-w-3xl mx-auto">
+                        Identified problems and recommended solutions to improve training outcomes and community preparedness.
+                    </p>
+                </div>
+                
+                <div id="problem-identification" class="space-y-6">
+                    <!-- Problem identification cards will be dynamically generated -->
+                </div>
+            </div>
+        </section>
+    </div>
+    
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <div class="flex items-center justify-center space-x-3 mb-6">
+                    <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-green-600 rounded-lg flex items-center justify-center">
+                        <span class="text-white font-bold text-lg">🛡️</span>
+                    </div>
+                    <h3 class="font-display text-2xl font-bold">DisasterPredict AI</h3>
+                </div>
+                
+                <p class="text-gray-400 mb-6 max-w-2xl mx-auto">
+                    Advancing disaster preparedness through artificial intelligence and capacity building recommendations.
+                </p>
+                
+                <div class="border-t border-gray-800 pt-8">
+                    <p class="text-gray-500 text-sm">
+                        © 2023 DisasterPredict AI - SIH Innovation Showcase. Built for government disaster management.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Scripts -->
+    <script src="main.js"></script>
+    
+    <script>
+        // Capacity Building Dashboard Logic
+        class CapacityBuildingDashboard {
+            constructor() {
+                this.currentData = {
+                    disasterType: 'flood',
+                    location: 'Patna District, Bihar',
+                    timeAvailable: 21,
+                    populationAtRisk: 150000,
+                    currentTrained: 1200,
+                    requiredTrained: 1500,
+                    priorityLevel: 'CRITICAL'
+                };
+                
+                this.init();
+            }
+            
+            init() {
+                this.setupEventListeners();
+                this.generateInitialRecommendations();
+                this.initializeCharts();
+                this.updateSidebarStats();
+            }
+            
+            setupEventListeners() {
+                document.getElementById('sidebar-toggle').addEventListener('click', () => {
+                    this.toggleSidebar();
+                });
+                
+                document.getElementById('generate-btn').addEventListener('click', () => {
+                    this.generateRecommendations();
+                });
+                
+                // Auto-update on input changes
+                ['disaster-type', 'location-input', 'time-available', 'population-risk'].forEach(id => {
+                    document.getElementById(id).addEventListener('change', () => {
+                        this.updateCalculations();
+                    });
+                });
+            }
+            
+            toggleSidebar() {
+                const sidebar = document.getElementById('sidebar');
+                const mainContent = document.getElementById('main-content');
+                
+                sidebar.classList.toggle('open');
+                mainContent.classList.toggle('shifted');
+            }
+            
+            generateInitialRecommendations() {
+                this.generatePriorityAlerts();
+                this.generateTrainingRecommendations();
+                this.generateProblemIdentification();
+            }
+            
+            generateRecommendations() {
+                this.updateCurrentData();
+                this.generateInitialRecommendations();
+                this.updateSidebarStats();
+                this.showNotification('Recommendations updated successfully!', 'success');
+            }
+            
+            updateCurrentData() {
+                this.currentData.disasterType = document.getElementById('disaster-type').value;
+                this.currentData.location = document.getElementById('location-input').value || 'Patna District, Bihar';
+                this.currentData.timeAvailable = parseInt(document.getElementById('time-available').value);
+                this.currentData.populationAtRisk = parseInt(document.getElementById('population-risk').value);
+                
+                // Calculate required trained based on disaster type
+                const coverageRatios = {
+                    flood: 100,
+                    earthquake: 50,
+                    cyclone: 75,
+                    fire: 200
+                };
+                
+                this.currentData.requiredTrained = Math.ceil(this.currentData.populationAtRisk / coverageRatios[this.currentData.disasterType]);
+                this.currentData.trainingGap = this.currentData.requiredTrained - this.currentData.currentTrained;
+                
+                // Determine priority level
+                if (this.currentData.timeAvailable < 15 && this.currentData.trainingGap > 500) {
+                    this.currentData.priorityLevel = 'CRITICAL';
+                } else if (this.currentData.timeAvailable < 30 && this.currentData.trainingGap > 300) {
+                    this.currentData.priorityLevel = 'HIGH';
+                } else if (this.currentData.trainingGap > 100) {
+                    this.currentData.priorityLevel = 'MEDIUM';
+                } else {
+                    this.currentData.priorityLevel = 'LOW';
+                }
+            }
+            
+            updateCalculations() {
+                this.updateCurrentData();
+                this.updateSidebarStats();
+            }
+            
+            updateSidebarStats() {
+                document.getElementById('current-trained').textContent = this.currentData.currentTrained.toLocaleString();
+                document.getElementById('coverage-rate').textContent = Math.round((this.currentData.currentTrained / this.currentData.populationAtRisk) * 100) + '%';
+                document.getElementById('training-gap').textContent = Math.max(0, this.currentData.trainingGap).toLocaleString();
+            }
+            
+            generatePriorityAlerts() {
+                const container = document.getElementById('priority-alerts');
+                const alerts = [
+                    {
+                        level: 'CRITICAL',
+                        location: 'Patna District, Bihar',
+                        disaster: 'Flood',
+                        time: '10 days',
+                        gap: '800 people',
+                        severity: 'High',
+                        color: 'alert-critical'
+                    },
+                    {
+                        level: 'HIGH',
+                        location: 'Uttarkashi District, Uttarakhand',
+                        disaster: 'Earthquake',
+                        time: '25 days',
+                        gap: '1,200 people',
+                        severity: 'Moderate',
+                        color: 'alert-high'
+                    },
+                    {
+                        level: 'MEDIUM',
+                        location: 'Puri District, Odisha',
+                        disaster: 'Cyclone',
+                        time: '45 days',
+                        gap: '500 people',
+                        severity: 'High',
+                        color: 'alert-medium'
+                    }
+                ];
+                
+                container.innerHTML = alerts.map(alert => `
+                    <div class="priority-card bg-white p-6 rounded-2xl shadow-lg border-l-4 border-${alert.level === 'CRITICAL' ? 'red' : alert.level === 'HIGH' ? 'orange' : alert.level === 'MEDIUM' ? 'yellow' : 'green'}-500">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="${alert.color} text-white px-3 py-1 rounded-full text-sm font-semibold">
+                                ${alert.level} PRIORITY
+                            </div>
+                            <div class="text-sm text-gray-500">${alert.time} remaining</div>
+                        </div>
+                        
+                        <h3 class="font-semibold text-lg mb-2">${alert.location}</h3>
+                        <p class="text-gray-600 mb-4">
+                            <span class="font-medium">${alert.disaster}</span> • Severity: ${alert.severity} • Training Gap: ${alert.gap}
+                        </p>
+                        
+                        <div class="flex space-x-3">
+                            <button class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
+                                View Details
+                            </button>
+                            <button class="flex-1 border border-blue-600 text-blue-600 py-2 px-4 rounded-lg text-sm font-medium hover:bg-blue-50 transition-colors">
+                                Generate Plan
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            
+            generateTrainingRecommendations() {
+                const container = document.getElementById('training-recommendations');
+                const recommendations = [
+                    {
+                        type: 'Emergency Basic Training',
+                        duration: '1 day per session',
+                        sessions: 16,
+                        people: 800,
+                        focus: ['Evacuation Procedures', 'First Aid', 'Emergency Communication'],
+                        timeline: 'Start within 3 days, complete in 10 days',
+                        resources: '₹16,00,000 budget, 16 trainers, 8 venues',
+                        impact: 'Expected casualty reduction: 35%'
+                    }
+                ];
+                
+                container.innerHTML = recommendations.map(rec => `
+                    <div class="bg-white p-8 rounded-2xl shadow-lg animate-on-scroll">
+                        <div class="flex items-start justify-between mb-6">
+                            <div>
+                                <h3 class="font-display text-2xl font-bold mb-2">${rec.type}</h3>
+                                <p class="text-gray-600">${rec.duration} • ${rec.sessions} sessions • ${rec.people.toLocaleString()} people</p>
+                            </div>
+                            <div class="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-semibold">
+                                URGENT
+                            </div>
+                        </div>
+                        
+                        <div class="grid md:grid-cols-2 gap-8">
+                            <div>
+                                <h4 class="font-semibold text-lg mb-4">Training Focus Areas</h4>
+                                <ul class="space-y-2">
+                                    ${rec.focus.map(skill => `
+                                        <li class="flex items-center">
+                                            <span class="w-2 h-2 bg-blue-600 rounded-full mr-3"></span>
+                                            ${skill}
+                                        </li>
+                                    `).join('')}
+                                </ul>
+                            </div>
+                            
+                            <div>
+                                <h4 class="font-semibold text-lg mb-4">Implementation Details</h4>
+                                <div class="space-y-3 text-sm">
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Timeline:</span>
+                                        <span class="font-medium">${rec.timeline}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Resources:</span>
+                                        <span class="font-medium">${rec.resources}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Expected Impact:</span>
+                                        <span class="font-medium text-green-600">${rec.impact}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-6 pt-6 border-t border-gray-200">
+                            <div class="flex space-x-4">
+                                <button class="flex-1 bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                                    Approve & Schedule
+                                </button>
+                                <button class="flex-1 border border-gray-300 text-gray-700 py-3 px-6 rounded-lg font-semibold hover:bg-gray-50 transition-colors">
+                                    Modify Plan
+                                </button>
+                                <button class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                                    Export PDF
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            
+            generateProblemIdentification() {
+                const container = document.getElementById('problem-identification');
+                const problems = [
+                    {
+                        region: 'Coastal Odisha',
+                        problem: 'Low Attendance Rate',
+                        indicator: '62% attendance (Target: >70%)',
+                        cause: 'Training scheduled during fishing season',
+                        solution: 'Schedule during off-season months (Nov-Feb)',
+                        expected: 'Projected attendance: 85%',
+                        status: 'needs-attention'
+                    },
+                    {
+                        region: 'Bihar Plains',
+                        problem: 'Language Barrier',
+                        indicator: 'Feedback mentions language issues',
+                        cause: 'Materials in Hindi, local language is Maithili',
+                        solution: 'Translate all materials to Maithili',
+                        expected: 'Better comprehension and retention',
+                        status: 'in-progress'
+                    },
+                    {
+                        region: 'Uttarakhand Hills',
+                        problem: 'High Dropout Rate',
+                        indicator: '71% completion (Target: >85%)',
+                        cause: 'Long training duration, remote venues',
+                        solution: 'Shorten to 1-day intensive, local venues',
+                        expected: 'Expected completion: 90%',
+                        status: 'needs-attention'
+                    }
+                ];
+                
+                container.innerHTML = problems.map(problem => `
+                    <div class="bg-white p-6 rounded-xl shadow-lg border-l-4 ${problem.status === 'needs-attention' ? 'border-orange-500' : 'border-green-500'}">
+                        <div class="flex items-start justify-between mb-4">
+                            <div>
+                                <h3 class="font-semibold text-lg mb-1">${problem.region}</h3>
+                                <p class="text-gray-600">${problem.problem}</p>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-sm text-gray-500">${problem.indicator}</div>
+                                <div class="w-3 h-3 ${problem.status === 'needs-attention' ? 'bg-orange-500' : 'bg-green-500'} rounded-full mt-1"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="grid md:grid-cols-3 gap-4 text-sm">
+                            <div>
+                                <h4 class="font-semibold text-red-600 mb-2">Root Cause</h4>
+                                <p class="text-gray-600">${problem.cause}</p>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-blue-600 mb-2">Recommended Solution</h4>
+                                <p class="text-gray-600">${problem.solution}</p>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-green-600 mb-2">Expected Outcome</h4>
+                                <p class="text-gray-600">${problem.expected}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4 pt-4 border-t border-gray-200">
+                            <button class="text-blue-600 hover:text-blue-800 font-medium text-sm">
+                                View Detailed Analysis →
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            
+            initializeCharts() {
+                this.initializeCoverageChart();
+                this.initializeResourceChart();
+            }
+            
+            initializeCoverageChart() {
+                const chartContainer = document.getElementById('coverage-chart');
+                if (!chartContainer || typeof echarts === 'undefined') return;
+                
+                const chart = echarts.init(chartContainer);
+                
+                const option = {
+                    title: {
+                        text: 'Training Coverage by Region',
+                        left: 'center',
+                        textStyle: {
+                            color: '#1f2937',
+                            fontSize: 14
+                        }
+                    },
+                    tooltip: {
+                        trigger: 'item',
+                        formatter: '{a} <br/>{b}: {c}% ({d}%)'
+                    },
+                    legend: {
+                        bottom: 10,
+                        data: ['Fully Trained', 'Partially Trained', 'Not Trained']
+                    },
+                    series: [{
+                        name: 'Coverage',
+                        type: 'pie',
+                        radius: ['40%', '70%'],
+                        center: ['50%', '45%'],
+                        data: [
+                            { value: 35, name: 'Fully Trained', itemStyle: { color: '#059669' } },
+                            { value: 25, name: 'Partially Trained', itemStyle: { color: '#eab308' } },
+                            { value: 40, name: 'Not Trained', itemStyle: { color: '#ef4444' } }
+                        ],
+                        emphasis: {
+                            itemStyle: {
+                                shadowBlur: 10,
+                                shadowOffsetX: 0,
+                                shadowColor: 'rgba(0, 0, 0, 0.5)'
+                            }
+                        }
+                    }]
+                };
+                
+                chart.setOption(option);
+                
+                window.addEventListener('resize', () => {
+                    chart.resize();
+                });
+            }
+            
+            initializeResourceChart() {
+                const chartContainer = document.getElementById('resource-chart');
+                if (!chartContainer || typeof echarts === 'undefined') return;
+                
+                const chart = echarts.init(chartContainer);
+                
+                const option = {
+                    title: {
+                        text: 'Resource Utilization',
+                        left: 'center',
+                        textStyle: {
+                            color: '#1f2937',
+                            fontSize: 14
+                        }
+                    },
+                    tooltip: {
+                        trigger: 'axis',
+                        axisPointer: {
+                            type: 'shadow'
+                        }
+                    },
+                    legend: {
+                        bottom: 10,
+                        data: ['Available', 'Required']
+                    },
+                    xAxis: {
+                        type: 'category',
+                        data: ['Trainers', 'Venues', 'Equipment', 'Budget']
+                    },
+                    yAxis: {
+                        type: 'value'
+                    },
+                    series: [
+                        {
+                            name: 'Available',
+                            type: 'bar',
+                            data: [25, 12, 150, 85],
+                            itemStyle: { color: '#059669' }
+                        },
+                        {
+                            name: 'Required',
+                            type: 'bar',
+                            data: [32, 18, 200, 120],
+                            itemStyle: { color: '#ef4444' }
+                        }
+                    ]
+                };
+                
+                chart.setOption(option);
+                
+                window.addEventListener('resize', () => {
+                    chart.resize();
+                });
+            }
+            
+            showNotification(message, type = 'info') {
+                const notification = document.createElement('div');
+                notification.className = `fixed top-20 right-4 p-4 rounded-lg shadow-lg z-50 ${
+                    type === 'success' ? 'bg-green-500' : 
+                    type === 'error' ? 'bg-red-500' : 
+                    'bg-blue-500'
+                } text-white`;
+                notification.textContent = message;
+                
+                document.body.appendChild(notification);
+                
+                anime({
+                    targets: notification,
+                    translateX: [300, 0],
+                    opacity: [0, 1],
+                    duration: 300,
+                    easing: 'easeOutExpo'
+                });
+                
+                setTimeout(() => {
+                    anime({
+                        targets: notification,
+                        translateX: [0, 300],
+                        opacity: [1, 0],
+                        duration: 300,
+                        easing: 'easeInExpo',
+                        complete: () => {
+                            document.body.removeChild(notification);
+                        }
+                    });
+                }, 3000);
+            }
+        }
+        
+        // Initialize dashboard when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            new CapacityBuildingDashboard();
+        });
+    </script>
+</body>
+</html>

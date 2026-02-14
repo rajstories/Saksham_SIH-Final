@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Earthquake Prediction Model - DisasterPredict AI</title>
+    <meta name="description" content="Interactive earthquake prediction system using machine learning to analyze seismic data and predict earthquake probability in real-time.">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Animation Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    
+    <!-- Custom Styles -->
+    <style>
+        :root {
+            --primary-color: #1e3a8a;
+            --secondary-color: #ea580c;
+            --accent-color: #059669;
+            --text-color: #1f2937;
+            --bg-color: #fefefe;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+        
+        .font-display {
+            font-family: 'Playfair Display', serif;
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .animate-on-scroll {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease-out;
+        }
+        
+        .animate-in {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .nav-link {
+            position: relative;
+            transition: color 0.3s ease;
+        }
+        
+        .nav-link:hover {
+            color: var(--primary-color);
+        }
+        
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--primary-color);
+        }
+        
+        .particle-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+        
+        .parameter-slider {
+            -webkit-appearance: none;
+            appearance: none;
+            height: 6px;
+            border-radius: 3px;
+            background: #e5e7eb;
+            outline: none;
+        }
+        
+        .parameter-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            cursor: pointer;
+        }
+        
+        .parameter-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            cursor: pointer;
+            border: none;
+        }
+        
+        .risk-indicator {
+            transition: all 0.5s ease;
+        }
+        
+        .seismic-wave {
+            animation: seismicPulse 2s infinite;
+        }
+        
+        @keyframes seismicPulse {
+            0%, 100% { transform: scale(1); opacity: 0.7; }
+            50% { transform: scale(1.1); opacity: 1; }
+        }
+        
+        .mobile-menu {
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+        
+        .mobile-menu:not(.hidden) {
+            transform: translateX(0);
+        }
+        
+        .earthquake-marker {
+            animation: earthquakePulse 1.5s infinite;
+        }
+        
+        @keyframes earthquakePulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            50% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Particle Background -->
+    <div id="particle-background" class="particle-bg"></div>
+    
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-green-600 rounded-lg flex items-center justify-center">
+                        <span class="text-white font-bold text-lg">🛡️</span>
+                    </div>
+                    <div>
+                        <h1 class="font-display text-xl font-bold text-gray-900">DisasterPredict AI</h1>
+                        <p class="text-xs text-gray-600">SIH 2023 Finalist</p>
+                    </div>
+                </div>
+                
+                <!-- Desktop Navigation -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="index.html" class="nav-link font-medium">Home</a>
+                    <a href="earthquake.html" class="nav-link active font-medium">Earthquake</a>
+                    <a href="flood.html" class="nav-link font-medium">Flood Detection</a>
+                    <a href="forestfire.html" class="nav-link font-medium">Forest Fire</a>
+                </div>
+                
+                <!-- Mobile Menu Button -->
+                <button class="md:hidden mobile-menu-btn p-2">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Mobile Menu -->
+        <div class="mobile-menu hidden md:hidden fixed top-16 right-0 w-64 h-screen bg-white shadow-lg">
+            <div class="p-6 space-y-4">
+                <a href="index.html" class="block font-medium text-gray-900">Home</a>
+                <a href="earthquake.html" class="block font-medium text-gray-900">Earthquake</a>
+                <a href="flood.html" class="block font-medium text-gray-900">Flood Detection</a>
+                <a href="forestfire.html" class="block font-medium text-gray-900">Forest Fire</a>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Hero Section -->
+    <section class="pt-24 pb-12 bg-gradient-to-br from-blue-50 to-indigo-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <div class="inline-flex items-center px-4 py-2 bg-red-100 text-red-800 text-sm font-medium rounded-full mb-6">
+                    🌍 Earthquake Prediction Model
+                </div>
+                <h1 class="font-display text-4xl md:text-5xl font-bold mb-6">
+                    <span class="gradient-text">Earthquake</span> Prediction System
+                </h1>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    Advanced machine learning model analyzing seismic data from the Hindu Kush region to predict earthquake probability with 96% accuracy.
+                </p>
+            </div>
+            
+            <!-- Model Stats -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
+                <div class="text-center bg-white p-6 rounded-xl shadow-lg">
+                    <div class="text-3xl font-bold text-blue-600 mb-2">96%</div>
+                    <div class="text-sm text-gray-600">Accuracy</div>
+                </div>
+                <div class="text-center bg-white p-6 rounded-xl shadow-lg">
+                    <div class="text-3xl font-bold text-green-600 mb-2">14,698</div>
+                    <div class="text-sm text-gray-600">Data Points</div>
+                </div>
+                <div class="text-center bg-white p-6 rounded-xl shadow-lg">
+                    <div class="text-3xl font-bold text-orange-600 mb-2">22</div>
+                    <div class="text-sm text-gray-600">Parameters</div>
+                </div>
+                <div class="text-center bg-white p-6 rounded-xl shadow-lg">
+                    <div class="text-3xl font-bold text-purple-600 mb-2">Real-time</div>
+                    <div class="text-sm text-gray-600">Processing</div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Interactive Prediction Panel -->
+    <section class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12 animate-on-scroll">
+                <h2 class="font-display text-3xl font-bold text-gray-900 mb-6">
+                    Interactive Prediction Panel
+                </h2>
+                <p class="text-lg text-gray-600 max-w-3xl mx-auto">
+                    Adjust seismic parameters to see real-time earthquake probability calculations based on our trained ML model.
+                </p>
+            </div>
+            
+            <div class="grid lg:grid-cols-2 gap-12">
+                <!-- Parameter Controls -->
+                <div class="space-y-8 animate-on-scroll">
+                    <div class="bg-gray-50 p-8 rounded-2xl">
+                        <h3 class="font-display text-2xl font-bold mb-6">Seismic Parameters</h3>
+                        
+                        <!-- Magnitude -->
+                        <div class="mb-8">
+                            <label class="block text-sm font-medium text-gray-700 mb-3">
+                                Magnitude: <span id="magnitude-value" class="text-blue-600 font-semibold">5.0</span>
+                            </label>
+                            <input type="range" id="magnitude" class="parameter-slider w-full earthquake-input" 
+                                   min="1" max="9" step="0.1" value="5.0">
+                            <div class="flex justify-between text-xs text-gray-500 mt-1">
+                                <span>1.0</span>
+                                <span>9.0</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Depth -->
+                        <div class="mb-8">
+                            <label class="block text-sm font-medium text-gray-700 mb-3">
+                                Depth (km): <span id="depth-value" class="text-blue-600 font-semibold">10</span>
+                            </label>
+                            <input type="range" id="depth" class="parameter-slider w-full earthquake-input" 
+                                   min="0" max="700" step="1" value="10">
+                            <div class="flex justify-between text-xs text-gray-500 mt-1">
+                                <span>0 km</span>
+                                <span>700 km</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Gap -->
+                        <div class="mb-8">
+                            <label class="block text-sm font-medium text-gray-700 mb-3">
+                                Azimuthal Gap (°): <span id="gap-value" class="text-blue-600 font-semibold">180</span>
+                            </label>
+                            <input type="range" id="gap" class="parameter-slider w-full earthquake-input" 
+                                   min="0" max="360" step="1" value="180">
+                            <div class="flex justify-between text-xs text-gray-500 mt-1">
+                                <span>0°</span>
+                                <span>360°</span>
+                            </div>
+                        </div>
+                        
+                        <!-- RMS -->
+                        <div class="mb-8">
+                            <label class="block text-sm font-medium text-gray-700 mb-3">
+                                RMS: <span id="rms-value" class="text-blue-600 font-semibold">0.5</span>
+                            </label>
+                            <input type="range" id="rms" class="parameter-slider w-full earthquake-input" 
+                                   min="0" max="2" step="0.01" value="0.5">
+                            <div class="flex justify-between text-xs text-gray-500 mt-1">
+                                <span>0.0</span>
+                                <span>2.0</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Location -->
+                        <div class="mb-8">
+                            <label class="block text-sm font-medium text-gray-700 mb-3">
+                                Location
+                            </label>
+                            <select id="location" class="earthquake-input w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <option value="hindu-kush">Hindu Kush Region</option>
+                                <option value="himalaya">Himalaya Region</option>
+                                <option value="andaman">Andaman Islands</option>
+                                <option value="nicobar">Nicobar Islands</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Results Display -->
+                <div class="space-y-8 animate-on-scroll">
+                    <!-- Risk Assessment -->
+                    <div id="earthquake-risk" class="risk-indicator">
+                        <!-- Dynamic content will be inserted here -->
+                    </div>
+                    
+                    <!-- Seismic Activity Visualization -->
+                    <div class="bg-gray-50 p-8 rounded-2xl">
+                        <h3 class="font-display text-2xl font-bold mb-6">Seismic Activity</h3>
+                        <div class="h-64 bg-white rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center">
+                            <div class="text-center">
+                                <div class="seismic-wave w-16 h-16 bg-red-500 rounded-full mx-auto mb-4"></div>
+                                <p class="text-gray-600">Real-time seismic waves</p>
+                                <p class="text-sm text-gray-500">Magnitude: <span id="current-magnitude">5.0</span></p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Prediction Chart -->
+                    <div class="bg-gray-50 p-8 rounded-2xl">
+                        <h3 class="font-display text-2xl font-bold mb-6">Prediction Timeline</h3>
+                        <div id="prediction-chart" class="h-64"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Interactive Map -->
+    <section class="py-16 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12 animate-on-scroll">
+                <h2 class="font-display text-3xl font-bold text-gray-900 mb-6">
+                    Interactive Seismic Map
+                </h2>
+                <p class="text-lg text-gray-600 max-w-3xl mx-auto">
+                    Explore historical earthquake data and current seismic activity in the Hindu Kush region.
+                </p>
+            </div>
+            
+            <div class="bg-white p-8 rounded-2xl shadow-lg animate-on-scroll">
+                <div id="earthquake-map" class="h-96 rounded-lg overflow-hidden">
+                    <!-- Interactive map will be rendered here -->
+                </div>
+                
+                <div class="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="text-center p-4 bg-red-50 rounded-lg">
+                        <div class="w-4 h-4 bg-red-500 rounded-full mx-auto mb-2"></div>
+                        <div class="text-sm font-medium">High Risk</div>
+                        <div class="text-xs text-gray-600">M > 6.0</div>
+                    </div>
+                    <div class="text-center p-4 bg-orange-50 rounded-lg">
+                        <div class="w-4 h-4 bg-orange-500 rounded-full mx-auto mb-2"></div>
+                        <div class="text-sm font-medium">Medium Risk</div>
+                        <div class="text-xs text-gray-600">M 4.0-6.0</div>
+                    </div>
+                    <div class="text-center p-4 bg-yellow-50 rounded-lg">
+                        <div class="w-4 h-4 bg-yellow-500 rounded-full mx-auto mb-2"></div>
+                        <div class="text-sm font-medium">Low Risk</div>
+                        <div class="text-xs text-gray-600">M 2.0-4.0</div>
+                    </div>
+                    <div class="text-center p-4 bg-green-50 rounded-lg">
+                        <div class="w-4 h-4 bg-green-500 rounded-full mx-auto mb-2"></div>
+                        <div class="text-sm font-medium">Minimal</div>
+                        <div class="text-xs text-gray-600">M < 2.0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Historical Data -->
+    <section class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12 animate-on-scroll">
+                <h2 class="font-display text-3xl font-bold text-gray-900 mb-6">
+                    Historical Earthquake Data
+                </h2>
+                <p class="text-lg text-gray-600 max-w-3xl mx-auto">
+                    Recent seismic events in the Hindu Kush region used for model training and validation.
+                </p>
+            </div>
+            
+            <div class="grid lg:grid-cols-2 gap-12">
+                <!-- Recent Events -->
+                <div class="animate-on-scroll">
+                    <h3 class="font-display text-2xl font-bold mb-6">Recent Events</h3>
+                    <div id="earthquake-history" class="space-y-4">
+                        <!-- Dynamic content will be inserted here -->
+                    </div>
+                </div>
+                
+                <!-- Statistics -->
+                <div class="animate-on-scroll">
+                    <h3 class="font-display text-2xl font-bold mb-6">Regional Statistics</h3>
+                    <div class="bg-gray-50 p-8 rounded-2xl">
+                        <div class="space-y-6">
+                            <div class="flex justify-between items-center">
+                                <span class="font-medium">Average Magnitude</span>
+                                <span class="text-2xl font-bold text-blue-600">4.8</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="font-medium">Events per Year</span>
+                                <span class="text-2xl font-bold text-green-600">~150</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="font-medium">Maximum Depth</span>
+                                <span class="text-2xl font-bold text-orange-600">280 km</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="font-medium">Prediction Accuracy</span>
+                                <span class="text-2xl font-bold text-purple-600">96%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Technical Details -->
+    <section class="py-16 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12 animate-on-scroll">
+                <h2 class="font-display text-3xl font-bold text-gray-900 mb-6">
+                    Technical Implementation
+                </h2>
+                <p class="text-lg text-gray-600 max-w-3xl mx-auto">
+                    Deep dive into the machine learning architecture and data processing pipeline.
+                </p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="bg-white p-8 rounded-2xl shadow-lg animate-on-scroll">
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-6">
+                        <span class="text-blue-600 text-xl">📊</span>
+                    </div>
+                    <h3 class="font-semibold text-xl mb-4">Data Preprocessing</h3>
+                    <ul class="space-y-2 text-sm text-gray-600">
+                        <li>• Missing value imputation</li>
+                        <li>• Feature normalization</li>
+                        <li>• Outlier detection</li>
+                        <li>• Data validation</li>
+                    </ul>
+                </div>
+                
+                <div class="bg-white p-8 rounded-2xl shadow-lg animate-on-scroll">
+                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-6">
+                        <span class="text-green-600 text-xl">🧠</span>
+                    </div>
+                    <h3 class="font-semibold text-xl mb-4">ML Algorithms</h3>
+                    <ul class="space-y-2 text-sm text-gray-600">
+                        <li>• Random Forest</li>
+                        <li>• Gradient Boosting</li>
+                        <li>• Neural Networks</li>
+                        <li>• Ensemble Methods</li>
+                    </ul>
+                </div>
+                
+                <div class="bg-white p-8 rounded-2xl shadow-lg animate-on-scroll">
+                    <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-6">
+                        <span class="text-purple-600 text-xl">⚡</span>
+                    </div>
+                    <h3 class="font-semibold text-xl mb-4">Real-time Processing</h3>
+                    <ul class="space-y-2 text-sm text-gray-600">
+                        <li>• Stream processing</li>
+                        <li>• Event-driven architecture</li>
+                        <li>• Low-latency predictions</li>
+                        <li>• Scalable infrastructure</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <div class="flex items-center justify-center space-x-3 mb-6">
+                    <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-green-600 rounded-lg flex items-center justify-center">
+                        <span class="text-white font-bold text-lg">🛡️</span>
+                    </div>
+                    <h3 class="font-display text-2xl font-bold">DisasterPredict AI</h3>
+                </div>
+                
+                <p class="text-gray-400 mb-6 max-w-2xl mx-auto">
+                    Advancing disaster preparedness through artificial intelligence and machine learning technologies.
+                </p>
+                
+                <div class="border-t border-gray-800 pt-8">
+                    <p class="text-gray-500 text-sm">
+                        © 2023 DisasterPredict AI - SIH Innovation Showcase. Built with passion for saving lives.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Scripts -->
+    <script src="main.js"></script>
+    
+    <script>
+        // Initialize earthquake page specific functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Update slider values
+            const sliders = document.querySelectorAll('.earthquake-input[type="range"]');
+            sliders.forEach(slider => {
+                slider.addEventListener('input', function() {
+                    const valueSpan = document.getElementById(this.id + '-value');
+                    if (valueSpan) {
+                        valueSpan.textContent = this.value;
+                    }
+                    
+                    // Update current magnitude display
+                    if (this.id === 'magnitude') {
+                        document.getElementById('current-magnitude').textContent = this.value;
+                    }
+                });
+            });
+            
+            // Initialize with default prediction
+            updateEarthquakePrediction();
+        });
+    </script>
+</body>
+</html>
