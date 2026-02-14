@@ -14,8 +14,6 @@
 
 > *"An intelligent, multi-platform ecosystem designed to revolutionize disaster preparedness and response for Bharat."*
 
-[Explore Modules](#-the-saksham-suite) • [Quick Start](#-quick-start) • [Tech Stack](#-tech-stack) • [Why We Won](#-winning-edge)
-
 </div>
 
 ---
